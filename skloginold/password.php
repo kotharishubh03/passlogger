@@ -7,7 +7,7 @@
         $stmt->execute(array( ':sessid' => $_SESSION['sessionid'],));
         $rows = $stmt->fetch(PDO::FETCH_ASSOC);
         if ( $rows !== false ) {
-           // print_r($_SESSION);
+            print_r($_SESSION);
         }
         if(isset($_POST["delete"])) {
             if ($_POST["delete"]==1) {
@@ -186,7 +186,7 @@
                     </form>
                 </div>
             </div>
-            <div style="font-size: 90px;">
+        <div style="font-size: 90px;">
             <button onclick="document.getElementById('addpassform').style.display='block'" class="w3-button w3-margin"><a style="position: fixed;bottom: 10px;right:10px;"><i class="fa fa-plus-circle fa-10x" aria-hidden="true"></i></a></button>
         </div>
         <script>

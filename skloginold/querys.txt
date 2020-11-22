@@ -1,0 +1,6 @@
+
+SELECT p.pass_id, p.usr_id, p.pass_website, p.username, p.password,q.sq_id, q.question, q.ans FROM password p join pass_security_q q WHERE p.pass_id =q.pass_id
+---
+get favicon of website 
+https://s2.googleusercontent.com/s2/favicons?domain=gmail.com
+----

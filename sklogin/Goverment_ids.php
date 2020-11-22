@@ -1,10 +1,57 @@
 <?php
-require_once "./req/pdo.php";
-require_once "./req/nav.php";
+    require_once "./req/pdo.php";
+    require_once "./req/nav.php";
+    session_start();
+    if (isset($_SESSION['sessionid'])) {
+        $stmt = $pdo->prepare('SELECT usr_id FROM `sess_manager` WHERE `session_id` = :sessid');
+        $stmt->execute(array( ':sessid' => $_SESSION['sessionid'],));
+        $rows = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ( $rows !== false ) {
+            //print_r($_SESSION);
+        }
+        if(isset($_POST["delete"])) {
+            if ($_POST["delete"]==1) {
+                $stmt = $pdo->prepare('DELETE FROM `govermentids` WHERE `g_id` = :gid');
+                $stmt->execute(array( ':gid' => $_POST["g_id"],));
+                header("Location: Goverment_ids.php");
+                return;
+            }
+        }
+        if(isset($_GET["add"])) {
+            if ($_GET["add"]==1) {
+                $stmt = $pdo->prepare('SELECT usr_id FROM `sess_manager` WHERE `session_id` = :sessid');
+                $stmt->execute(array( ':sessid' => $_SESSION['sessionid'],));
+                $rows = $stmt->fetch(PDO::FETCH_ASSOC);
+                $uid=$rows['usr_id'];
+                $stmt = $pdo->prepare('INSERT INTO `govermentids` (`usr_id`, `name`, `unique_idno`) VALUES (:usrid,:name,:unique_idno)');
+                $stmt->execute(array( ':usrid'=>$uid,':name'=>$_GET['name'],':unique_idno'=>$_GET['unique_idno'] ));
+                $_SESSION['hello']=$_SESSION['hello']."here";
+                header("Location: Goverment_ids.php");
+                return;
+            }
+        }
+    } else {
+        header("Location: access-denied.html");
+        return;
+    }
+    $stmt = $pdo->prepare('SELECT * FROM `govermentids` where `usr_id` in (SELECT usr_id FROM `sess_manager` WHERE `session_id` = :sessid)');
+		$stmt->execute(array( ':sessid' => $_SESSION['sessionid'],));
+		$row = $stmt->fetchall();
+		if ( $row !== false ) {
+			//print_r($row);
+			//header("Location: pin.php");
+			//return;
+		} else {
+			$_SESSION["error"] = "Incorrect password Login fail for ".$usr_email;
+			
+			//error_log("Login fail ".$usr_email." $check");
+			header( 'Location: login.php' ) ;
+			return;
+        }
 ?>
 <!DOCTYPE html>
 <html>
-<title>Passwords </title>
+<title>Government ID's </title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"-->
@@ -32,21 +79,93 @@ body,h1,h2,h3,h4,h5,h6,.w3-wide {font-family: "Montserrat", sans-serif;}
             <!-- Top header -->
                 <?php tophead("Govermeent ID'S"); ?>
             <!-- items grid -->
-
+            <div class="w3-row">
+            <div class="w3-container" id="ww">
+                <div class="w3-col m4 s6 w3-padding ">
+                    <div class="w3-card-4 w3-dark-grey w3-round-xlarge">
+                        <div class="w3-container w3-center w3-hover-shadow">
+                            <h5>Add New </h5>
+                            <img class="w3-round-xlarge" src="./images/add.jpg" alt="Avatar" style="width:60%">
+                            <button onclick="document.getElementById('addpassform').style.display='block'" class="w3-button w3-green w3-margin">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <?php
+                    $blk="'block'";
+                    $nan="'None'";
+                    foreach ($row as $r) {
+                        echo('<div class="w3-col m4 s6 w3-padding ">
+                            <div class="w3-card-4 w3-dark-grey w3-round-xlarge">
+                                <div class="w3-container w3-center w3-hover-shadow">
+                                    <h2>'.$r["name"].'</h2>
+                                    <button onclick="document.getElementById(\''.$r["g_id"].'\').style.display=\'block\'" class="w3-button w3-green w3-margin">View</button>
+                                    <form method="post">
+                                    <button class="w3-button w3-red w3-margin" name="delete" value=1>Delete</button>
+                                    <input type="text" name="g_id" value="'.$r["g_id"].'" style="display:none;">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>');
+                    echo('<div id="'.$r["g_id"].'" class="w3-modal">
+                        <div class="w3-modal-content w3-animate-zoom w3-card-4">
+                            <header class="w3-container w3-black"> 
+                                <span onclick="document.getElementById(\''.$r["g_id"].'\').style.display=\'None\'" 
+                                    class="w3-button w3-display-topright">&times;</span>
+                                <h2>'.$r["name"].'</h2>
+                            </header>
+                            <div class="w3-container">
+                                <h7 class="w3-tag"><span class="w3-text-red w3-xlarge">*</span> Are required Field</h7>
+                                <form class="w3-container w3-margin">
+                                    <div class="w3-row w3-margin"> 
+                                        <label class="w3-col l2 w3-margin-left">Card Name<span class="w3-text-red w3-xlarge">*</span></label>
+                                        <input class="w3-col l4 w3-input w3-border" type="text" value="'.$r["name"].'" readonly>
+                                    </div> 
+                                    <div class="w3-row w3-margin"> 
+                                        <label class="w3-col l2 w3-margin-left">Unique id no.</label>
+                                        <textarea class="w3-col l9 w3-input w3-border" readonly>'.$r["unique_idno"].'</textarea>
+                                    </div >
+                                </form>
+                            </div>
+                            <footer class="w3-container w3-grey">
+                                <button class="w3-button w3-red w3-margin" onclick="document.getElementById(\''.$r["g_id"].'\').style.display=\'None\'">Close</button>
+                                <button class="w3-button w3-red w3-margin" onclick="document.getElementById(\''.$r["g_id"].'\').style.display=\'None\'">Autologin</button>
+                            </footer>
+                        </div>
+                    </div>');
+                    }
+                ?>
+            </div>
+            </div>
+            <div id="addpassform" class="w3-modal">
+                <div class="w3-modal-content w3-animate-zoom w3-card-4">
+                    <header class="w3-container w3-black"> 
+                        <span onclick="document.getElementById('addpassform').style.display='none'" 
+                            class="w3-button w3-display-topright">&times;</span>
+                        <h2>Add ID 's</h2>
+                    </header>
+                    <div class="w3-container">
+                        <h7 class="w3-tag"><span class="w3-text-red w3-xlarge">*</span> Are required Field</h7>
+                        <form class="w3-container w3-margin" method="get">
+                            <div class="w3-row w3-margin"> 
+                                <label class="w3-col l2 w3-margin-left" >name<span class="w3-text-red w3-xlarge">*</span></label>
+                                <input class="w3-col l4 w3-input w3-border" type="text" id="name" name="name">
+                            </div>   
+                            <div class="w3-row w3-margin"> 
+                                <label class="w3-col l2 w3-margin-left">Unique Id no</label>
+                                <textarea class="w3-col l9 w3-input w3-border" id="unique_idno" name="unique_idno"></textarea>
+                            </div >
+                    </div>
+                    <footer class="w3-container w3-grey">
+                        <button class="w3-button w3-red w3-margin" onclick="document.getElementById('addpassform').style.display='none'">Close</button>
+                        <button class="w3-button w3-red w3-margin" type="submit" name="add" value="1">Add</button>
+                    </footer>
+                    </form>
+                </div>
+            </div>
+            <div style="font-size: 90px;">
+            <button onclick="document.getElementById('addpassform').style.display='block'" class="w3-button w3-margin"><a style="position: fixed;bottom: 10px;right:10px;"><i class="fa fa-plus-circle fa-10x" aria-hidden="true"></i></a></button>
+        </div>
   <!-- End page content -->
-</div>
-
-<!-- Newsletter Modal -->
-<div id="newsletter" class="w3-modal">
-  <div class="w3-modal-content w3-animate-zoom" style="padding:32px">
-    <div class="w3-container w3-white w3-center">
-      <i onclick="document.getElementById('newsletter').style.display='none'" class="fa fa-remove w3-right w3-button w3-transparent w3-xxlarge"></i>
-      <h2 class="w3-wide">NEWSLETTER</h2>
-      <p>Join our mailing list to receive updates on new arrivals and special offers.</p>
-      <p><input class="w3-input w3-border" type="text" placeholder="Enter e-mail"></p>
-      <button type="button" class="w3-button w3-padding-large w3-red w3-margin-bottom" onclick="document.getElementById('newsletter').style.display='none'">Subscribe</button>
-    </div>
-  </div>
 </div>
 
 <script>
