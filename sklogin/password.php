@@ -9,6 +9,28 @@
         if ( $rows !== false ) {
             print_r($_SESSION);
         }
+        if(isset($_POST["delete"])) {
+            if ($_POST["delete"]==1) {
+                $stmt = $pdo->prepare('DELETE FROM `password` WHERE `pass_id` = :passid');
+                $stmt->execute(array( ':passid' => $_POST["pass_id"],));
+                header("Location: password.php");
+                return;
+            }
+        }
+        if(isset($_GET["add"])) {
+            if ($_GET["add"]==1) {
+                $stmt = $pdo->prepare('SELECT usr_id FROM `sess_manager` WHERE `session_id` = :sessid');
+                $stmt->execute(array( ':sessid' => $_SESSION['sessionid'],));
+                $rows = $stmt->fetch(PDO::FETCH_ASSOC);
+                $uid=$rows['usr_id'];
+                $stmt = $pdo->prepare('INSERT INTO `password` (`usr_id`, `pass_website`, `username`, `password`, `pin`, `discription`) VALUES (:usrid,:web,:usrname,:pass,:pin,:disc)');
+                $stmt->execute(array( ':usrid'=>$uid,':web'=>$_GET['website'],':usrname'=>$_GET['usr_name'],
+                ':pass'=>$_GET['password'],':pin'=>$_GET['pin'],':disc'=>$_GET['discription'] ));
+                $_SESSION['hello']=$_SESSION['hello']."here";
+                header("Location: password.php");
+                return;
+            }
+        }
     } else {
         echo("ACCESS DENIED ");
         return;
@@ -26,7 +48,7 @@
 			//error_log("Login fail ".$usr_email." $check");
 			header( 'Location: login.php' ) ;
 			return;
-		}
+        }
 ?>
 
 <!DOCTYPE html>
@@ -79,10 +101,10 @@
                                     <h5>'.$r["pass_website"].'</h5>
                                     <h6>'.$r["username"].'</h6>
                                     <img class="w3-round-xlarge" src="data:image/png;base64,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" alt="Avatar" style="width:80%">
-                                    <form method="post">
-                                    <input type="text" name="pass_id" value="'.$r["pass_id"].'" style="display:none;">
                                     <button onclick="document.getElementById(\''.$r["pass_id"].'\').style.display=\'block\'" class="w3-button w3-green w3-margin">View</button>
+                                    <form method="post">
                                     <button class="w3-button w3-red w3-margin" name="delete" value=1>Delete</button>
+                                    <input type="text" name="pass_id" value="'.$r["pass_id"].'" style="display:none;">
                                     </form>
                                 </div>
                             </div>
@@ -159,7 +181,7 @@
                     </div>
                     <footer class="w3-container w3-grey">
                         <button class="w3-button w3-red w3-margin" onclick="document.getElementById('addpassform').style.display='none'">Close</button>
-                        <button class="w3-button w3-red w3-margin" type="submit">Add</button>
+                        <button class="w3-button w3-red w3-margin" type="submit" name="add" value="1">Add</button>
                     </footer>
                     </form>
                 </div>
@@ -191,10 +213,6 @@
             function w3_close() {
               document.getElementById("mySidebar").style.display = "none";
               document.getElementById("myOverlay").style.display = "none";
-            }
-
-            function makeblk(zz) {
-                document.getElementById(str(zz)).style.display = "block" ;
             }
         </script>
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
