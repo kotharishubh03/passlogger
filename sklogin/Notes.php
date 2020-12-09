@@ -128,7 +128,6 @@ body,h1,h2,h3,h4,h5,h6,.w3-wide {font-family: "Montserrat", sans-serif;}
                             </div>
                             <footer class="w3-container w3-grey">
                                 <button class="w3-button w3-red w3-margin" onclick="document.getElementById(\''.$r["notes_id"].'\').style.display=\'None\'">Close</button>
-                                <button class="w3-button w3-red w3-margin" onclick="document.getElementById(\''.$r["notes_id"].'\').style.display=\'None\'">Autologin</button>
                             </footer>
                         </div>
                     </div>');

@@ -23,8 +23,8 @@
                 $stmt->execute(array( ':sessid' => $_SESSION['sessionid'],));
                 $rows = $stmt->fetch(PDO::FETCH_ASSOC);
                 $uid=$rows['usr_id'];
-                $stmt = $pdo->prepare('INSERT INTO `govermentids` (`usr_id`, `name`, `unique_idno`) VALUES (:usrid,:name,:unique_idno)');
-                $stmt->execute(array( ':usrid'=>$uid,':name'=>$_GET['name'],':unique_idno'=>$_GET['unique_idno'] ));
+                $stmt = $pdo->prepare('INSERT INTO `govermentids` (`usr_id`, `name`, `unique_idno`,`expiry_date`,`issue_date`) VALUES (:usrid,:name,:unique_idno,:idate,:edate)');
+                $stmt->execute(array( ':usrid'=>$uid,':name'=>$_GET['name'],':unique_idno'=>$_GET['unique_idno'],':idate'=>$_GET['idate'],':edate'=>$_GET['edate'] ));
                 $_SESSION['hello']=$_SESSION['hello']."here";
                 header("Location: Goverment_ids.php");
                 return;
@@ -123,12 +123,17 @@ body,h1,h2,h3,h4,h5,h6,.w3-wide {font-family: "Montserrat", sans-serif;}
                                     <div class="w3-row w3-margin"> 
                                         <label class="w3-col l2 w3-margin-left">Unique id no.</label>
                                         <textarea class="w3-col l9 w3-input w3-border" readonly>'.$r["unique_idno"].'</textarea>
-                                    </div >
+                                    </div>
+                                    <div class="w3-row w3-margin">
+                                        <label class="w3-col l1 w3-margin-left" >ISSUE DATE</label>
+                                        <input class="w3-col l4 w3-input w3-border" type="text" id="idate" name="idate" value="'.$r["issue_date"].'" readonly>
+                                        <label class="w3-col l1 w3-margin-left" >EXPIRY DATE</label>
+                                        <input class="w3-col l4 w3-input w3-border" type="text" id="edate" name="edate" value="'.$r["expiry_date"].'" readonly>
+                                    </div>
                                 </form>
                             </div>
                             <footer class="w3-container w3-grey">
                                 <button class="w3-button w3-red w3-margin" onclick="document.getElementById(\''.$r["g_id"].'\').style.display=\'None\'">Close</button>
-                                <button class="w3-button w3-red w3-margin" onclick="document.getElementById(\''.$r["g_id"].'\').style.display=\'None\'">Autologin</button>
                             </footer>
                         </div>
                     </div>');
@@ -148,12 +153,18 @@ body,h1,h2,h3,h4,h5,h6,.w3-wide {font-family: "Montserrat", sans-serif;}
                         <form class="w3-container w3-margin" method="get">
                             <div class="w3-row w3-margin"> 
                                 <label class="w3-col l2 w3-margin-left" >name<span class="w3-text-red w3-xlarge">*</span></label>
-                                <input class="w3-col l4 w3-input w3-border" type="text" id="name" name="name">
+                                <input class="w3-col l4 w3-input w3-border" type="text" id="name" name="name" placeholder="AADHAR CARD">
                             </div>   
                             <div class="w3-row w3-margin"> 
                                 <label class="w3-col l2 w3-margin-left">Unique Id no</label>
-                                <textarea class="w3-col l9 w3-input w3-border" id="unique_idno" name="unique_idno"></textarea>
+                                <textarea class="w3-col l9 w3-input w3-border" id="unique_idno" name="unique_idno" placeholder="xxxxxxxxxx...."></textarea>
                             </div >
+                            <div class="w3-row w3-margin">
+                                <label class="w3-col l1 w3-margin-left" >ISSUE DATE</label>
+                                <input class="w3-col l4 w3-input w3-border" type="text" id="idate" name="idate" placeholder="YYYY-MM-DD">
+                                <label class="w3-col l1 w3-margin-left" >EXPIRY DATE</label>
+                                <input class="w3-col l4 w3-input w3-border" type="text" id="edate" name="edate" placeholder="YYYY-MM-DD">
+                            </div>
                     </div>
                     <footer class="w3-container w3-grey">
                         <button class="w3-button w3-red w3-margin" onclick="document.getElementById('addpassform').style.display='none'">Close</button>
