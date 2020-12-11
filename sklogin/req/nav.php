@@ -16,8 +16,8 @@ echo('<nav class="w3-sidebar w3-bar-block w3-black w3-collapse w3-top" style="z-
         else {echo('<a href="./Goverment_ids.php" class="w3-bar-item w3-button"><i class="fa fa-id-card w3-margin-right"></i>Goverment Ids</a>');}
     echo('<a href="./logout.php" class="w3-bar-item w3-button w3-black"></i>Logout</a>
     </div>
-    <a href="#footer" class="w3-bar-item w3-button w3-padding">Security Checkup</a>
-    <a href="#footer"  class="w3-bar-item w3-button w3-padding">Contact Us</a>
+    <a href="#footer"  onclick=confi(); class="w3-bar-item w3-button w3-padding">Security Checkup</a>
+    <a href="contact.php" class="w3-bar-item w3-button w3-padding">Contact Us</a>
 </nav>');
 }
 function headerfunc(){
@@ -39,5 +39,16 @@ text-align: center;">'.$st.'</p>
     </a>
 </p>
 </header>');
+}
+
+function conf(){
+    echo('<script>
+    function confi(){
+    if (confirm("This will lead you to https://haveibeenpwned.com/ which has varity of security checks passloger do not endrose any privacy issues you may have on that site \n\n\nDo you want to visit?")) {
+        window.location.href = "https://haveibeenpwned.com/";
+      } else {
+      }
+    }
+    </script>');
 }
 ?>
